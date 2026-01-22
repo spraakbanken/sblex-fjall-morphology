@@ -1,0 +1,25 @@
+[project]
+name = "fjall-morphology"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Kristoffer Andersson", email = "kristoffer.andersson@gu.se" }
+]
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+fjall-morphology = "fjall_morphology:main"
+
+[tool.maturin]
+module-name = "fjall_morphology._core"
+python-packages = ["fjall_morphology"]
+python-source = "src"
+
+[tool.uv]
+cache-keys = [{ file = "pyproject.toml" }, { file = "src/**/*.rs" }, { file = "Cargo.toml" }, { file = "Cargo.lock" }]
+
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
