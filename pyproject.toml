@@ -15,10 +15,18 @@ fjall-morphology = "fjall_morphology:main"
 [tool.maturin]
 module-name = "fjall_morphology._core"
 python-packages = ["fjall_morphology"]
-python-source = "src"
+python-source = "python"
+manifest-path = "rust/fjall-morphology-python/Cargo.toml"
 
 [tool.uv]
-cache-keys = [{ file = "pyproject.toml" }, { file = "src/**/*.rs" }, { file = "Cargo.toml" }, { file = "Cargo.lock" }]
+cache-keys = [
+    { file = "pyproject.toml" },
+    { file = "rust/**/*.rs" },
+    { file = "Cargo.toml" },
+    { file = "rust/fjall-morphology-core/Cargo.toml" },
+    { file = "rust/fjall-morphology-python/Cargo.toml" },
+    { file = "Cargo.lock" }
+]
 
 [build-system]
 requires = ["maturin>=1.0,<2.0"]
@@ -27,4 +35,5 @@ build-backend = "maturin"
 [dependency-groups]
 dev = [
     "pytest>=9.0.2",
+    "syrupy>=5.0.0",
 ]
