@@ -1,5 +1,5 @@
 [project]
-name = "fjall-morphology"
+name = "sblex-fjall-morphology"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -9,22 +9,19 @@ authors = [
 requires-python = ">=3.10"
 dependencies = []
 
-[project.scripts]
-fjall-morphology = "fjall_morphology:main"
-
 [tool.maturin]
-module-name = "fjall_morphology._core"
-python-packages = ["fjall_morphology"]
+module-name = "sblex_fjall_morphology._core"
+python-packages = ["sblex_fjall_morphology"]
 python-source = "python"
-manifest-path = "rust/fjall-morphology-python/Cargo.toml"
+manifest-path = "rust/sblex-fjall-morphology-python/Cargo.toml"
 
 [tool.uv]
 cache-keys = [
     { file = "pyproject.toml" },
     { file = "rust/**/*.rs" },
     { file = "Cargo.toml" },
-    { file = "rust/fjall-morphology-core/Cargo.toml" },
-    { file = "rust/fjall-morphology-python/Cargo.toml" },
+    { file = "rust/sblex-fjall-morphology-core/Cargo.toml" },
+    { file = "rust/sblex-fjall-morphology-python/Cargo.toml" },
     { file = "Cargo.lock" }
 ]
 

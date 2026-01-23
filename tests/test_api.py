@@ -2,10 +2,9 @@ import json
 from tempfile import TemporaryDirectory
 
 import pytest
+from sblex_fjall_morphology import FjallMorphology
 from syrupy.assertion import SnapshotAssertion
 from syrupy.extensions.json import JSONSnapshotExtension
-
-from fjall_morphology import FjallMorphology
 
 
 @pytest.fixture

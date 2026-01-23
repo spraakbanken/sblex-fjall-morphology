@@ -24,7 +24,7 @@ wheels = [
 ]
 
 [[package]]
-name = "fjall-morphology"
+name = "sblex-fjall-morphology"
 version = "0.1.0"
 source = { editable = "." }
 

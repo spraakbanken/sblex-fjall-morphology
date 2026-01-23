@@ -1,5 +1,5 @@
-use fjall_morphology_core::FjallMorphology;
 use pyo3::{exceptions::PyRuntimeError, prelude::*};
+use sblex_fjall_morphology_core::FjallMorphology;
 
 #[pyclass]
 struct PyFjallMorphology {

@@ -1,19 +1,19 @@
 [workspace]
 resolver = "3"
 members = [
-    "rust/fjall-morphology-core",
-    "rust/fjall-morphology-python",
+    "rust/sblex-fjall-morphology-core",
+    "rust/sblex-fjall-morphology-python",
 ]
 
 [workspace.package]
-name = "fjall_morphology"
+name = "sblex_fjall_morphology"
 version = "0.1.0"
 edition = "2024"
 
 
 
 [workspace.dependencies]
-fjall-morphology-core = { path = "rust/fjall-morphology-core" }
+sblex-fjall-morphology-core = { path = "rust/sblex-fjall-morphology-core" }
 
 fjall = "3.0.1"
 fs-err = "3.2.2"

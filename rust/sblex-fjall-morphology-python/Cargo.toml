@@ -1,5 +1,5 @@
 [package]
-name = "fjall-morphology-python"
+name = "sblex-fjall-morphology-python"
 version = "0.1.0"
 edition = "2024"
 
@@ -9,5 +9,5 @@ name = "_core"
 crate-type = ["cdylib"]
 
 [dependencies]
-fjall-morphology-core = { workspace = true }
+sblex-fjall-morphology-core = { workspace = true }
 pyo3 = { workspace = true }
