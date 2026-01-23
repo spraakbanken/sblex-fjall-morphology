@@ -2,6 +2,7 @@ use fs_err as fs;
 use std::{
     fmt,
     io::{self, BufRead},
+    path::Path,
 };
 
 use fjall::{Database, Keyspace, KeyspaceCreateOptions, PersistMode};
@@ -73,6 +74,26 @@ impl fmt::Display for FjallMorphologyError {
     }
 }
 
+impl std::error::Error for FjallMorphologyError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            Self::CantCreateKeyspace(err) => Some(err),
+            Self::CantOpenDatabase { folder: _, err } => Some(err),
+            Self::CantReadWord { word: _, err } => Some(err),
+            Self::FailedToInsertWord { word: _, err } => Some(err),
+            Self::FailedToPersistDb(err) => Some(err),
+            Self::FailedToReadPrefixForWord { word: _, err } => Some(err),
+            Self::Io(err) => Some(err),
+            Self::JsonDeserialize {
+                line: _,
+                path: _,
+                err,
+            } => Some(err),
+            Self::JsonSerialize(err) => Some(err),
+        }
+    }
+}
+
 #[derive(Debug, serde::Deserialize)]
 struct MorphValueInRef<'a> {
     word: &'a str,
@@ -102,10 +123,10 @@ pub struct FjallMorphology {
 }
 
 impl FjallMorphology {
-    pub fn new(folder: &str) -> Result<Self, FjallMorphologyError> {
-        let db = Database::builder(folder).open().map_err(|err| {
+    pub fn new<P: AsRef<Path>>(folder: P) -> Result<Self, FjallMorphologyError> {
+        let db = Database::builder(folder.as_ref()).open().map_err(|err| {
             FjallMorphologyError::CantOpenDatabase {
-                folder: folder.to_string(),
+                folder: folder.as_ref().display().to_string(),
                 err,
             }
         })?;

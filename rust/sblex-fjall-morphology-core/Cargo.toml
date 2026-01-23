@@ -8,3 +8,8 @@ fjall = { workspace = true }
 fs-err = { workspace = true }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { workspace = true }
+
+[dev-dependencies]
+exn = "0.2.1"
+insta = { version = "1.46.1", features = ["json"] }
+temp-dir = "0.1.16"

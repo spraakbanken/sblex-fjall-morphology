@@ -1,0 +1,8 @@
+---
+source: rust/sblex-fjall-morphology-core/tests/api/main.rs
+expression: result_json
+---
+{
+  "a": [],
+  "c": "aä"
+}
