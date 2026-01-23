@@ -39,7 +39,3 @@ mod _core {
     #[pymodule_export]
     use super::PyFjallMorphology;
 }
-// fn _core(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
-//     m.add_class::<PyFjallMorphology>()?;
-//     Ok(())
-// }
