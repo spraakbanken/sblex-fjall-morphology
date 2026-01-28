@@ -18,5 +18,6 @@ ruff==0.14.14
 syrupy==5.0.0
 tomli==2.4.0 ; python_full_version < '3.11'
     # via pytest
+ty==0.0.14
 typing-extensions==4.15.0 ; python_full_version < '3.11'
     # via exceptiongroup
