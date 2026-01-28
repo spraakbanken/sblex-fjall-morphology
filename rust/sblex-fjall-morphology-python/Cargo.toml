@@ -3,6 +3,7 @@ name = "sblex-fjall-morphology-python"
 version = { workspace = true }
 edition = { workspace = true }
 repository = { workspace = true }
+rust-version = { workspace = true }
 publish = false
 
 [lib]

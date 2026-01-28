@@ -3,6 +3,7 @@ name = "sblex-fjall-morphology-core"
 version = { workspace = true }
 edition = { workspace = true }
 repository = { workspace = true }
+rust-version = { workspace = true }
 
 [dependencies]
 fjall = { workspace = true }
