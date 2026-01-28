@@ -57,8 +57,8 @@ help:
 	@echo ""
 
 PLATFORM := `uname -o`
-REPO := "<REPO-NAME-HERE>"
-PROJECT_SRC := "<SRC-FOLDER-HERE>"
+REPO := sblex-fjall-morphology
+PROJECT_SRC := python/sblex_fjall_morphology
 
 ifeq (${VIRTUAL_ENV},)
   VENV_NAME = .venv
