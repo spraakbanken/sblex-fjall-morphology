@@ -466,7 +466,7 @@ checksum = "b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d"
 
 [[package]]
 name = "sblex-fjall-morphology-core"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "exn",
  "fjall",
@@ -479,7 +479,7 @@ dependencies = [
 
 [[package]]
 name = "sblex-fjall-morphology-python"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "pyo3",
  "sblex-fjall-morphology-core",
