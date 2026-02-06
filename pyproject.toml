@@ -1,39 +1,65 @@
 [project]
 name = "sblex-fjall-morphology"
 version = "0.1.1"
-description = "Add your description here"
+description = "A sblex morphology based on fjall."
 readme = "README.md"
-authors = [
-    { name = "Kristoffer Andersson", email = "kristoffer.andersson@gu.se" }
-]
 requires-python = ">=3.10"
+authors = [
+  { name = "Kristoffer Andersson", email = "kristoffer.andersson@gu.se" }
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  # "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX",
+  "Operating System :: Unix",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: Implementation :: CPython",
+  # "uncomment if you test on these interpreters:",
+  # "Programming Language :: Python :: Implementation :: IronPython",
+  # "Programming Language :: Python :: Implementation :: Jython",
+  # "Programming Language :: Python :: Implementation :: Stackless",
+  "Topic :: Utilities",
+]
 dependencies = []
 
-[tool.maturin]
-module-name = "sblex_fjall_morphology._core"
-python-packages = ["sblex_fjall_morphology"]
-python-source = "python"
-manifest-path = "rust/sblex-fjall-morphology-python/Cargo.toml"
+[project.urls]
+Changelog = "https://github.com/spraakbanken/sblex-fjall-morphology/blob/main/CHANGELOG.md"
+Homepage = "https://spraakbanken.gu.se"
+Issues = "https://github.com/spraakbanken/sblex-fjall-morphology/issues"
+Repository = "https://github.com/spraakbanken/sblex-fjall-morphology"
 
-[tool.uv]
-cache-keys = [
-    { file = "pyproject.toml" },
-    { file = "rust/**/*.rs" },
-    { file = "Cargo.toml" },
-    { file = "rust/sblex-fjall-morphology-core/Cargo.toml" },
-    { file = "rust/sblex-fjall-morphology-python/Cargo.toml" },
-    { file = "Cargo.lock" }
+[dependency-groups]
+dev = [
+  "pytest>=9.0.2",
+  "pytest-cov>=7.0.0",
+  "ruff>=0.14.14",
+  "syrupy>=5.0.0",
+  "ty>=0.0.14",
 ]
 
 [build-system]
 requires = ["maturin>=1.0,<2.0"]
 build-backend = "maturin"
 
-[dependency-groups]
-dev = [
-    "pytest>=9.0.2",
-    "pytest-cov>=7.0.0",
-    "ruff>=0.14.14",
-    "syrupy>=5.0.0",
-    "ty>=0.0.14",
+[tool.maturin]
+manifest-path = "rust/sblex-fjall-morphology-python/Cargo.toml"
+module-name = "sblex_fjall_morphology._core"
+python-packages = ["sblex_fjall_morphology"]
+python-source = "python"
+
+[tool.uv]
+cache-keys = [
+  { file = "pyproject.toml" },
+  { file = "rust/**/*.rs" },
+  { file = "Cargo.toml" },
+  { file = "rust/sblex-fjall-morphology-core/Cargo.toml" },
+  { file = "rust/sblex-fjall-morphology-python/Cargo.toml" },
+  { file = "Cargo.lock" }
 ]
