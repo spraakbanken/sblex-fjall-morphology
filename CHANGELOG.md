@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### Miscellaneous Tasks
+
+- Add pypi metadata
+
 ## [0.1.1] - 2026-02-06
 
 ### Added
