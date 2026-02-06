@@ -1,0 +1,270 @@
+name: release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+  pull_request:
+    paths:
+      # We want to ensure that the maturin builds still work when we change
+      # Project metadata
+      - pyproject.toml
+      - Cargo.toml
+      - rust/sblex-fjall-morphology-core/Cargo.toml
+      - rust/sblex-fjall-morphology-python/Cargo.toml
+      # - .cargo/config.toml
+      # Toolchain or dependency versions
+      - Cargo.lock
+      # - rust-toolchain.toml
+      # And the workflow itself
+      - .github/workflows/release.yml
+  merge_group:
+    paths:
+      # We want to ensure that the maturin builds still work when we change
+      # Project metadata
+      - pyproject.toml
+      - Cargo.toml
+      - rust/sblex-fjall-morphology-core/Cargo.toml
+      - rust/sblex-fjall-morphology-python/Cargo.toml
+      # - .cargo/config.toml
+      # Toolchain or dependency versions
+      - Cargo.lock
+      # - rust-toolchain.toml
+      # And the workflow itself
+      - .github/workflows/release.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.10"
+  UV_VERSION: "0.9.26"
+  CARGO_INCREMENTAL: 0
+  CARGO_NET_RETRY: 10
+  CARGO_TERM_COLOR: always
+  RUSTUP_MAX_RETRIES: 10
+  PACKAGE_NAME: sblex-fjall-morphology
+  MODULE_NAME: sblex_fjall_morphology
+  PACKAGE_SRC_DIR: python/sblex_fjall_morphology
+
+jobs:
+  build-test-sdist:
+    name: ubuntu / 3.10 / build and test sdist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # 7.2.0
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: "Prep README.md"
+        run: uv run --python 3.11 scripts/transform_readme.py --target pypi
+      - name: "Build sdist"
+        uses: PyO3/maturin-action@86b9d133d34bc1b40018696f782949dac11bd380 # v1.49.4
+        with:
+          command: sdist
+          args: --out dist
+      - name: "Test sdist"
+        run: |
+          rm -r ${PACKAGE_SRC_DIR}
+          pip install typing-extensions
+          pip install -r tests/requirements-testing.lock
+          # We can't use `--find-links` here, since we need maturin, which means no `--no-index`, and without that option
+          # we run the risk that pip pull saldowsd from PyPI instead.
+          pip install dist/${MODULE_NAME}-*.tar.gz --force-reinstall
+          pytest tests
+      - name: "Upload sdist"
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: pypi-sdist
+          path: dist
+
+  build-test-wheel:
+    runs-on: ${{ matrix.platform.os }}
+    name: ${{ matrix.platform.os }} / ${{ matrix.platform.target }} / 3.11 / build and test wheel
+    strategy:
+      matrix:
+        platform:
+          - target: x86_64-pc-windows-msvc
+            arch: x64
+            os: windows-2022
+          - target: aarch64-pc-windows-msvc
+            arch: arm64
+            os: windows-11-arm
+          - target: x86_64-unknown-linux-gnu
+            arch: x64
+            os: ubuntu-latest
+          - target: aarch64-unknown-linux-gnu
+            arch: arm64
+            os: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+          # python-version: ${{ env.PYTHON_VERSION }}
+          architecture: ${{ matrix.platform.arch }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # 7.2.0
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+      - name: "Prep README.md"
+        run: uv run --python 3.11 scripts/transform_readme.py --target pypi
+
+      - name: "Build wheels"
+        uses: PyO3/maturin-action@86b9d133d34bc1b40018696f782949dac11bd380 # v1.49.4
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --locked --out dist
+      - name: "Test wheel"
+        # if: ${{ !startsWith(matrix.platform.target, 'aarch64') }}
+        shell: bash
+        run: |
+          rm -r ${PACKAGE_SRC_DIR}
+          pip install typing-extensions
+          pip install -r tests/requirements-testing.lock
+          pip install ${PACKAGE_NAME} --no-index --find-links dist/ --force-reinstall
+          pytest tests
+      - name: "Upload wheels"
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: pypi-${{ matrix.platform.target }}
+          path: dist
+
+  build-test-wheel-macos-x86_64:
+    name: macos-14 / x86_64 / 3.11 / build and test wheel
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          # python-version: ${{ env.PYTHON_VERSION }}
+          python-version: "3.11" # FIXME: workaround for Python 3.10
+          architecture: x64
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # 7.2.0
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+      - name: "Prep README.md"
+        run: uv run --python 3.11 scripts/transform_readme.py --target pypi
+
+      - name: "Build wheels - x86_64"
+        uses: PyO3/maturin-action@86b9d133d34bc1b40018696f782949dac11bd380 # v1.49.4
+        with:
+          target: x86_64
+          args: --release --locked --out dist
+      - name: "Upload wheels"
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: pypi-macos-x86_64
+          path: dist
+
+  build-test-wheel-macos-aarch64:
+    name: macos-14 / aarch64 / 3.10 / build and test wheel
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          architecture: arm64
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # 7.2.0
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+      - name: "Prep README.md"
+        run: uv run --python 3.11 scripts/transform_readme.py --target pypi
+
+      - name: "Build wheels - aarch64"
+        uses: PyO3/maturin-action@86b9d133d34bc1b40018696f782949dac11bd380 # v1.49.4
+        with:
+          target: aarch64
+          args: --release --locked --out dist
+      - name: "Test wheel - aarch64"
+        run: |
+          rm -r ${PACKAGE_SRC_DIR}
+          pip install typing-extensions
+          pip install -r tests/requirements-testing.lock
+          pip install ${PACKAGE_NAME} --no-index --find-links dist/ --force-reinstall
+          pytest tests
+      - name: "Upload wheels"
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: pypi-aarch64-apple-darwin
+          path: dist
+
+  # https://github.com/marketplace/actions/alls-green#why used for branch protection checks
+  release-check:
+    if: always()
+    needs:
+      - build-test-sdist
+      - build-test-wheel
+      - build-test-wheel-macos-x86_64
+      - build-test-wheel-macos-aarch64
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
+        with:
+          jobs: ${{ toJSON(needs) }}
+          # allowed-failures: coverage
+
+  publish:
+    # This action publishes the built and tested artifact to PyPI, but only on a tag
+
+    needs:
+      - release-check
+    if: success() && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v5.0.0
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: get dist artifacts
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
+        with:
+          pattern: pypi-*
+          merge-multiple: true
+          path: dist
+
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
