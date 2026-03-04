@@ -160,6 +160,7 @@ impl FjallMorphology {
             let value = serde_json::to_string(&a).map_err(FjallMorphologyError::JsonSerialize)?;
             self.insert(j.word, value)?;
         }
+        self.flush()?;
         Ok(())
     }
     pub fn insert(&mut self, word: &str, value: String) -> Result<(), FjallMorphologyError> {
@@ -187,6 +188,9 @@ impl FjallMorphology {
                 err,
             }
         })?;
+        Ok(())
+    }
+    pub fn flush(&mut self) -> Result<(), FjallMorphologyError> {
         self.db
             .persist(PersistMode::SyncAll)
             .map_err(FjallMorphologyError::FailedToPersistDb)?;
