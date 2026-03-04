@@ -12,7 +12,7 @@ rust-version = "1.91.0"
 repository = "https://github.com/spraakbanken/sblex-fjall-morphology"
 
 [workspace.dependencies]
-fjall = "3.0.1"
+fjall = "3.0.2"
 fs-err = "3.2.2"
 # "extension-module" tells pyo3 we want to build an extension module (skips linking against libpython.so)
 # "abi3-py310" tells pyo3 (and maturin) to build using the stable ABI with minimum Python version 3.9
